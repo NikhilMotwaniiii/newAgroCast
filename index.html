@@ -486,11 +486,11 @@ if($fh = opendir(($path))) {
                 <option value="" disabled >Date</option>
                 <option value="" selected>Today</option>
                 <option value="">yesterday</option>
-                <option value="">last week</option>
+                <option value="lastweek">last week</option>
                 <option value="">last year</option>
               </select>
 
-              <input class="in" id="date" type="date" placeholder="DD-MM-YYYY" min="1997-01-01" max="2020-02-15" value="">
+              <input class="in" id="date" type="date" placeholder="DD-MM-YYYY" min="1997-01-01" max="2020-02-15" value="2020-02-05">
               
             </div>
           </div>
@@ -615,32 +615,115 @@ if($fh = opendir(($path))) {
 
 
 
-$('#per').on('change',function(){
-
-   $('#date').val('');
-});
-$('#date').on('change',function(){
-
-$('#per').val('');
-});
 
 
+
+
+
+
+
+
+let Result;
+let displayData=[];
+let fullDate = new Date('2020-02-05');
+let selectedYear;
+let selectedMonth;
+let selectedDay;
+let selectedYearStr = "2020";
+let selectedMonthStr = "02";
+let selectedDayStr = "05";
+let weekCheck = false;
+let day1,day2,day3,day4,day5,day6,day7;
+let day1Gra,day2Gra,day3Gra,day4Gra,day5Gra,day6Gra,day7Gra;
+let day1Str='02-02-2002',day2Str,day3Str,day4Str,day5Str,day6Str,day7Str;
+let barChart;
 var IDv = '1';
 var Temptype;
 var tempselect = '6';
-// --------------# taluka wise
-$("#dis").on('change', function taluka(){
-  IDv = $('#dis').val();       
-  console.log(IDv);
-  return IDv;
+$('#date').on('change',function(){
+  Result = $('#date').val();
+  
+  fullDate = new Date(`${Result}`);
+  console.log(fullDate)
+  selectedYear = fullDate.getFullYear();
+  selectedMonth = fullDate.getMonth() + 1;
+  selectedDay = fullDate.getDate();
+  console.log(fullDate)
+
+  selectedYearStr = `${selectedYear}`;
+
+if(selectedMonth<10){
+  selectedMonthStr = '0'+ selectedMonth.toString();
+}
+else{
+  selectedMonthStr = selectedMonth.toString();
+}
+if(selectedDay<10){
+  selectedDayStr = '0'+ selectedDay.toString();
+}
+else{
+  selectedDayStr = selectedDay.toString();
+}
+day1 = fullDate;
+  console.log(day1);
+  day1Gra = day1.getDate()-6;
+  day1.setDate(day1Gra);
+  day1Str = convertformat(day1);
+  console.log(day1Str);
+
+  day2 = fullDate;
+  day2Gra = day2.getDate()+1;
+  day2.setDate(day2Gra);
+  day2Str = convertformat(day2);
+  console.log(day2Str);
+
+  day3 = fullDate;
+  day3Gra = day3.getDate()+1;
+  day3.setDate(day3Gra);
+  day3Str = convertformat(day3);
+  console.log(day3Str);
+
+  day4 = fullDate;
+  day4Gra = day4.getDate()+1;
+  day4.setDate(day4Gra);
+  day4Str = convertformat(day4);
+  console.log(day4Str);
+
+  day5 = fullDate;
+  day5Gra = day5.getDate()+1;
+  day5.setDate(day5Gra);
+  day5Str = convertformat(day5);
+  console.log(day5Str);
+
+  day6 = fullDate;
+  day6Gra = day6.getDate()+1;
+  day6.setDate(day6Gra);
+  day6Str = convertformat(day6);
+  console.log(day6Str)
+
+  day7 = fullDate;
+  day7Gra = day7.getDate()+1;
+  day7.setDate(day7Gra);
+  day7Str = convertformat(day7);
+  console.log(day7Str)
+
+console.log(day1);
+console.log(day2);
+console.log(day3);
+console.log(day4);
+$.ajax({
+  url: `./data/0/${selectedYearStr}_${selectedMonthStr}_${selectedDayStr}/data`, 
+  dataType: 'text',
+}).done(successFunction);
+
 });
 
-
-
-// --------------# Temp Type
-  // min = 6
-  // max = 5
-  // rain = 4
+let dataFile;
+$("#dis").on('change', function taluka(){
+  IDv = $('#dis').val();       
+  console.log("ID value",IDv);
+  renderBarchart();
+});
 
 $('#type').on('change', function temp(){
   Temptype = $('#type').val();
@@ -656,9 +739,44 @@ $('#type').on('change', function temp(){
   {
    tempselect = '6';
   }
+  renderBarchart()
   // console.log(tempselect);
 });
 
+$("#dis").on('change', function taluka(){
+  IDv = $('#dis').val();       
+  console.log("ID value",IDv);
+  return IDv;
+  renderBarchart()
+});
+
+function successFunction(data) {
+  console.log("Success called")
+
+dataFile = Papa.parse(data, {
+delimiter: " ",
+header: false,
+skipEmptyLines: true
+})
+console.log(dataFile);
+
+
+const csvData = [];
+for(i = 0; i < dataFile.data.length; i++ )
+{
+csvData.push(dataFile.data[i].csvData);
+}
+
+console.log(dataFile.data[5][5]);
+
+
+// --------------# taluka wise
+
+
+// --------------# Temp Type
+  // min = 6
+  // max = 5
+  // rain = 4
 
 // --------------# Date Period
 
@@ -666,35 +784,6 @@ $('#type').on('change', function temp(){
 
 
 // --------------# Date 
-
-
-
-
-  $.ajax({
-  url: './data/0/2020_01_30/data', 
-  dataType: 'text',
-}).done(successFunction);
-
-
-
-
-
-function successFunction(data) {
-
-  const dataFile = Papa.parse(data, {
-  delimiter: " ",
-  header: false,
-  skipEmptyLines: true
-})
-  console.log(dataFile);
-  
-
-const csvData = [];
-for(i = 0; i < dataFile.data.length; i++ )
-{
-  csvData.push(dataFile.data[i].csvData);
-}
-alert(dataFile.data[2][1])
 
   // id = 0
   // year = 1
@@ -704,21 +793,28 @@ alert(dataFile.data[2][1])
   // minTemp = 5
   // MaxTemp = 6
 
-$('#type, #dis').on('change', function(){
+// $('#type, #dis').on('change', function(){
 
-  console.log(dataFile.data[IDv-1][tempselect])
+//   console.log(dataFile.data[IDv-1][tempselect])
 
-});
+// });
+renderBarchart()
+
+}
+console.log("year: "+ selectedYearStr + " month: " + selectedMonthStr + " day: " + selectedDayStr + " id: "+IDv + " Temp: "+ tempselect );
+
+function convertformat(someDate){
+  let betFormat = `${someDate.getDate()}-${someDate.getMonth()+1}-${someDate.getFullYear()}`;
+  return betFormat
 }
 
-
-    // chart 1 (green) 
-    var ctx = document.getElementById("chart-bars").getContext("2d");
-
-    new Chart(ctx, {
+var ctx = document.getElementById("chart-bars").getContext("2d");
+    
+    console.log(day1Str)
+    barChart = new Chart(ctx, {
       type: "bar",
       data: {
-        labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        labels: [`${day1Str}`, `${day2Str}`, `${day3Str}`, `${day4Str}`, `${day5Str}`, `${day6Str}`,`${day7Str}`],
         datasets: [{
           label: "Sales",
           tension: 0.4,
@@ -792,6 +888,112 @@ $('#type, #dis').on('change', function(){
         },
       },
     });
+
+function renderBarchart() {
+  console.log("Rendering bar chart")
+  document.getElementById("chart-bars").innerHTML = "";
+  var ctx = document.getElementById("chart-bars").getContext("2d");
+    if(barChart){
+      barChart.destroy()
+    }
+    console.log(day1Str)
+    barChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: [`${day1Str}`, `${day2Str}`, `${day3Str}`, `${day4Str}`, `${day5Str}`, `${day6Str}`,`${day7Str}`],
+        datasets: [{
+          label: "Sales",
+          tension: 0.4,
+          borderWidth: 0,
+          borderRadius: 4,
+          borderSkipped: false,
+          backgroundColor: "rgba(255, 255, 255, .8)",
+          data: [50, 20, 10, 22, 80, 10, 40],
+          maxBarThickness: 6
+        }, ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          }
+        },
+        interaction: {
+          intersect: false,
+          mode: 'index',
+        },
+        scales: {
+          y: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              suggestedMin: 0,
+              suggestedMax: 500,
+              beginAtZero: true,
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+              color: "#fff"
+            },
+          },
+          x: {
+            grid: {
+              drawBorder: false,
+              display: true,
+              drawOnChartArea: true,
+              drawTicks: false,
+              borderDash: [5, 5],
+              color: 'rgba(255, 255, 255, .2)'
+            },
+            ticks: {
+              display: true,
+              color: '#f8f9fa',
+              padding: 10,
+              font: {
+                size: 14,
+                weight: 300,
+                family: "Roboto",
+                style: 'normal',
+                lineHeight: 2
+              },
+            }
+          },
+        },
+      },
+    });
+
+
+}
+
+$("#per").on('change', function taluka(){
+  if($('#per').val() === 'lastweek'){
+  weekCheck = true;      
+  }
+  else{
+    weekCheck = false;
+  }
+
+  console.log(fullDate);
+
+ 
+  
+ 
+  renderBarchart()
+  
+});
 
 
 
