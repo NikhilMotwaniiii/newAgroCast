@@ -625,6 +625,9 @@ if($fh = opendir(($path))) {
 
 let Result;
 let displayData=[];
+let dataFile;
+let csvData = [];
+
 let fullDate = new Date('2020-02-05');
 let selectedYear;
 let selectedMonth;
@@ -664,64 +667,97 @@ if(selectedDay<10){
 else{
   selectedDayStr = selectedDay.toString();
 }
-day1 = fullDate;
+
+  sevenDays();
+  renderBarchart()
+  displayData = [];
+});
+
+
+function sevenDays(){
+  if($('#per').val() === 'lastweek'){
+  day1 = fullDate;
   console.log(day1);
   day1Gra = day1.getDate()-6;
   day1.setDate(day1Gra);
   day1Str = convertformat(day1);
   console.log(day1Str);
+  console.log(day1Str.substr(3,2));
+  $.ajax({
+  url: `./data/0/${day1Str.substr(6,4)}_${day1Str.substr(3,2)}_${day1Str.substr(0,2)}/data`, 
+  dataType: 'text',
+}).done(successFunction); 
+
 
   day2 = fullDate;
   day2Gra = day2.getDate()+1;
   day2.setDate(day2Gra);
   day2Str = convertformat(day2);
   console.log(day2Str);
+  $.ajax({
+  url: `./data/0/${day2Str.substr(6,4)}_${day2Str.substr(3,2)}_${day2Str.substr(0,2)}/data`, 
+  dataType: 'text',
+}).done(successFunction); 
 
   day3 = fullDate;
   day3Gra = day3.getDate()+1;
   day3.setDate(day3Gra);
   day3Str = convertformat(day3);
   console.log(day3Str);
+  $.ajax({
+  url: `./data/0/${day3Str.substr(6,4)}_${day3Str.substr(3,2)}_${day3Str.substr(0,2)}/data`, 
+  dataType: 'text',
+}).done(successFunction); 
 
   day4 = fullDate;
   day4Gra = day4.getDate()+1;
   day4.setDate(day4Gra);
   day4Str = convertformat(day4);
   console.log(day4Str);
+  $.ajax({
+  url: `./data/0/${day4Str.substr(6,4)}_${day4Str.substr(3,2)}_${day4Str.substr(0,2)}/data`, 
+  dataType: 'text',
+}).done(successFunction); 
 
   day5 = fullDate;
   day5Gra = day5.getDate()+1;
   day5.setDate(day5Gra);
   day5Str = convertformat(day5);
   console.log(day5Str);
+  $.ajax({
+  url: `./data/0/${day5Str.substr(6,4)}_${day5Str.substr(3,2)}_${day5Str.substr(0,2)}/data`, 
+  dataType: 'text',
+}).done(successFunction); 
 
   day6 = fullDate;
   day6Gra = day6.getDate()+1;
   day6.setDate(day6Gra);
   day6Str = convertformat(day6);
-  console.log(day6Str)
+  console.log(day6Str);
+  $.ajax({
+  url: `./data/0/${day6Str.substr(6,4)}_${day6Str.substr(3,2)}_${day6Str.substr(0,2)}/data`, 
+  dataType: 'text',
+}).done(successFunction); 
 
   day7 = fullDate;
   day7Gra = day7.getDate()+1;
   day7.setDate(day7Gra);
   day7Str = convertformat(day7);
-  console.log(day7Str)
-
-console.log(day1);
-console.log(day2);
-console.log(day3);
-console.log(day4);
-$.ajax({
-  url: `./data/0/${selectedYearStr}_${selectedMonthStr}_${selectedDayStr}/data`, 
+  console.log(day7Str);  
+  $.ajax({
+  url: `./data/0/${day7Str.substr(6,4)}_${day7Str.substr(3,2)}_${day7Str.substr(0,2)}/data`, 
   dataType: 'text',
-}).done(successFunction);
+}).done(successFunction); 
 
-});
+  
+  }
+}
 
-let dataFile;
+
 $("#dis").on('change', function taluka(){
   IDv = $('#dis').val();       
   console.log("ID value",IDv);
+  sevenDays();
   renderBarchart();
 });
 
@@ -739,6 +775,7 @@ $('#type').on('change', function temp(){
   {
    tempselect = '6';
   }
+  sevenDays();
   renderBarchart()
   // console.log(tempselect);
 });
@@ -746,22 +783,23 @@ $('#type').on('change', function temp(){
 $("#dis").on('change', function taluka(){
   IDv = $('#dis').val();       
   console.log("ID value",IDv);
-  return IDv;
+  sevenDays();
   renderBarchart()
 });
 
 function successFunction(data) {
   console.log("Success called")
+  
 
 dataFile = Papa.parse(data, {
 delimiter: " ",
 header: false,
 skipEmptyLines: true
 })
+
 console.log(dataFile);
+displayData.push(dataFile.data[IDv-1][tempselect]);
 
-
-const csvData = [];
 for(i = 0; i < dataFile.data.length; i++ )
 {
 csvData.push(dataFile.data[i].csvData);
@@ -777,11 +815,6 @@ console.log(dataFile.data[5][5]);
   // min = 6
   // max = 5
   // rain = 4
-
-// --------------# Date Period
-
-
-
 
 // --------------# Date 
 
@@ -801,10 +834,26 @@ console.log(dataFile.data[5][5]);
 renderBarchart()
 
 }
-console.log("year: "+ selectedYearStr + " month: " + selectedMonthStr + " day: " + selectedDayStr + " id: "+IDv + " Temp: "+ tempselect );
+
+
 
 function convertformat(someDate){
-  let betFormat = `${someDate.getDate()}-${someDate.getMonth()+1}-${someDate.getFullYear()}`;
+  let betFormat;
+  let month, day;
+  if(someDate.getDate()<10){
+     day = '0' + `${someDate.getDate()}`;
+  }
+  else{
+    day = `${someDate.getDate()}`;
+  }
+  if((someDate.getMonth()+1)<10){
+     month = '0' + `${someDate.getMonth()+1}`;
+  }
+  else{
+    month = `${someDate.getMonth()+1}`;
+  }
+  betFormat = `${day}-${month}-${someDate.getFullYear()}`;
+  
   return betFormat
 }
 
@@ -891,6 +940,14 @@ var ctx = document.getElementById("chart-bars").getContext("2d");
 
 function renderBarchart() {
   console.log("Rendering bar chart")
+  console.log("year: "+ selectedYearStr + " month: " + selectedMonthStr + " day: " + selectedDayStr + " id: "+IDv + " Temp: "+ tempselect );
+  console.log("day1: " + displayData[0]);
+  console.log("day2: " + displayData[1]);
+  console.log("day3: " + displayData[2]);
+  console.log("day4: " + displayData[3]);
+  console.log("day5: " + displayData[4]);
+  console.log("day6: " + displayData[5]);
+  console.log("day7: " + displayData[6]);
   document.getElementById("chart-bars").innerHTML = "";
   var ctx = document.getElementById("chart-bars").getContext("2d");
     if(barChart){
@@ -908,7 +965,7 @@ function renderBarchart() {
           borderRadius: 4,
           borderSkipped: false,
           backgroundColor: "rgba(255, 255, 255, .8)",
-          data: [50, 20, 10, 22, 80, 10, 40],
+          data: [displayData[0], displayData[1], displayData[2], displayData[3], displayData[4], displayData[5], displayData[6]],
           maxBarThickness: 6
         }, ],
       },
@@ -979,19 +1036,13 @@ function renderBarchart() {
 }
 
 $("#per").on('change', function taluka(){
-  if($('#per').val() === 'lastweek'){
-  weekCheck = true;      
-  }
-  else{
-    weekCheck = false;
-  }
+ 
 
   console.log(fullDate);
 
  
-  
- 
   renderBarchart()
+  displayData=[];
   
 });
 
